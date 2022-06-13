@@ -1,9 +1,14 @@
 import prettier from 'rollup-plugin-prettier';
+import eslint from '@rollup/plugin-eslint';
 
 const prettierConfig = {
     tabWidth: 4,
     singleQuote: true,
     parser: 'babel',
+};
+const eslintConfig = {
+    fix: true,
+    include: ['lib/*.mjs'],
 };
 const config = {
   input: 'lib/bundle.mjs',
@@ -14,7 +19,8 @@ const config = {
     preferConst: true,
   },
   plugins: [
-    prettier(prettierConfig),
+    eslint(eslintConfig),
+    prettier(prettierConfig)
   ]
 };
 

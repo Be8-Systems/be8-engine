@@ -1,0 +1,62 @@
+<html>
+<head>
+<style>
+html, body, div, textarea, button, p {
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: grid;
+    grid-template-rows: auto 50px 30px auto 30px auto auto auto;
+    gap: 10px;
+}
+</style>
+</head>
+<body>
+<textarea id="input"></textarea>
+
+<button>"send"</button>
+
+<p>Cipher</p>
+<div class="encrypt" style="border:1px solid red"></div>
+
+<p>Text</p>
+<div class="decrypt" style="border:1px solid green"></div>
+
+<script type="module" src="bundle.js"></script>
+<script type="module">
+import Be8 from './bundle.js';
+
+const be8Sender = new Be8(1);
+const be8Receiver = new Be8(2);
+const button = document.querySelector('button');
+const encrypt = document.querySelector('.encrypt');
+const decrypt = document.querySelector('.decrypt');
+const input = document.querySelector('#input');
+let globalderivedKey;
+
+be8Sender.generatePrivAndPubKey().then(function ([publicKeySENDER, privateKeySENDER]) {
+    be8Receiver.generatePrivAndPubKey().then(function ([publicKeyRECEIVER, privateKeyRECEIVER]) {
+        be8Sender.getDerivedKey(publicKeyRECEIVER, privateKeySENDER).then(function (derivedKey) {
+            globalderivedKey = derivedKey;
+        });
+    });
+});
+
+button.addEventListener('click', function () {
+    const text = input.value;
+
+    be8Sender.encryptText(globalderivedKey, text).then(function ({ cipherText, iv }) {
+        encrypt.innerHTML = cipherText;
+    
+        be8Receiver.decryptText(globalderivedKey, cipherText, iv).then(function (dencryptedText) {
+            decrypt.innerHTML = dencryptedText;
+        });
+    });
+});
+
+</script>
+</body>
+</html>
