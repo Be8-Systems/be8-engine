@@ -1,0 +1,24 @@
+{
+  "name": "be8-engine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/",
+  "scripts": {
+    "watch": "rollup -w -c build/rollup.config.js",
+    "build": "rollup -c build/rollup.config.js && rollup -c build/rollup.iife.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Be8-Systems/be8-engine.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Be8-Systems/be8-engine/issues"
+  },
+  "homepage": "https://github.com/Be8-Systems/be8-engine#readme",
+  "devDependencies": {
+    "rollup-plugin-prettier": "^2.2.2",
+    "babel": "^6.23.0"
+  }
+}
