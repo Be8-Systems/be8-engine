@@ -1,9 +1,10 @@
 {
   "name": "be8-engine",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/",
   "scripts": {
+    "test": "node test/server.mjs",
     "watch": "rollup -w -c build/rollup.config.js",
     "build": "rollup -c build/rollup.config.js && rollup -c build/rollup.iife.config.js"
   },
@@ -25,6 +26,7 @@
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "express": "^4.18.1",
+    "qunit": "^2.19.1",
     "rollup-plugin-prettier": "^2.2.2",
     "rollup-plugin-terser": "^7.0.2"
   }

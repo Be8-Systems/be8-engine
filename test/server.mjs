@@ -20,4 +20,5 @@ app.use(bodyParser.urlencoded({
 app.use(compression());
 app.use('/', Express.static('./dist/'));
 app.use('/', Express.static('./test/'));
+app.use('/', Express.static('./node_modules/'));
 app.listen(port, () => console.log(`Open http://localhost:${port}/`));
