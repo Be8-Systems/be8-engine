@@ -58,6 +58,16 @@ QUnit.test('Communication between two and a third one is trying to decrypt', asy
     return assert.rejects(prom);
 });
 
-/*QUnit.test('', async function (assert) {
+QUnit.test('Simplified encrypt and decrypt', async function (assert) {
+    const text = 'Hallo Welt';
+    const [publicKeySENDER] = await be8Sender.generatePrivAndPubKey();
+    const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
 
-});*/
+    be8Sender.addPublicKey(2, publicKeyRECEIVER);
+    be8Receiver.addPublicKey(1, publicKeySENDER);
+
+    const { iv, cipherText } = await be8Sender.encryptTextSimple(1, 2, text);
+    const decryptText = await be8Sender.decryptTextSimple(2, 1, cipherText, iv);
+
+    return assert.equal(text, decryptText, `"${text}"" is decrypted as "${decryptText}"`);
+});

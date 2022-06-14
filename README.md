@@ -17,6 +17,18 @@ Returns a boolean.
 be8.hasKeys();
 ```
 
+## addPublicKey(accID, key)
+
+```javascript
+be8.();
+```
+
+## addGroupKey(groupID, key)
+
+```javascript
+be8.();
+```
+
 ## generatePrivAndPubKey()
 
 ```javascript

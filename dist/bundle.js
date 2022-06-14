@@ -58,6 +58,20 @@ class Be8 {
         );
     }
 
+    addPublicKeys(publicKeys) {
+        publicKeys.forEach(({ accID, publicKey }) =>
+            this.#publicKeys.set(accID, publicKey)
+        );
+    }
+
+    addPublicKey(accID, key) {
+        this.#publicKeys.set(accID, key);
+    }
+
+    addGroupKey(groupID, key) {
+        this.#groupKeys.set(groupID, key);
+    }
+
     async generatePrivAndPubKey() {
         const { privateKey, publicKey } =
             await window.crypto.subtle.generateKey(algorithm, true, keyUsages);
@@ -73,12 +87,36 @@ class Be8 {
         return keys;
     }
 
-    async _encryptText(accIDSender, accIDReceiver, text) {
+    async encryptTextSimple(accIDSender, accIDReceiver, text) {
         const publicKey = this.#publicKeys.get(accIDReceiver);
         const privateKey = this.#privateKeys.get(accIDSender);
+
+        if (!publicKey) {
+            console.log(`Missing public key for ${accIDReceiver}`);
+        }
+        if (!privateKey) {
+            console.log(`Missing private key for ${accIDSender}`);
+        }
+
         const key = await this.getDerivedKey(publicKey, privateKey);
 
         return await this.encryptText(key, text);
+    }
+
+    async decryptTextSimple(accIDSender, accIDReceiver, cipherText, iv) {
+        const publicKey = this.#publicKeys.get(accIDSender);
+        const privateKey = this.#privateKeys.get(accIDReceiver);
+
+        if (!publicKey) {
+            console.log(`Missing public key for ${accIDSender}`);
+        }
+        if (!privateKey) {
+            console.log(`Missing private key for ${accIDReceiver}`);
+        }
+
+        const key = await this.getDerivedKey(publicKey, privateKey);
+
+        return await this.decryptText(key, cipherText, iv);
     }
 
     async getDerivedKey(publicKeyJwk, privateKeyJwk) {
