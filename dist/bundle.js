@@ -1,16 +1,11 @@
-const keyUsages = Object.freeze(['deriveKey', 'deriveBits']);
-const algorithmType = 'ECDH'; // Elliptic Curve Diffie-Hellman
-const algorithm = Object.freeze({
-    name: algorithmType,
-    namedCurve: 'P-256', // 256-bit prime curve
-});
-const format = 'jwk'; // json web key format
-
+// generates an Initialization vector
 function generateIV() {
-    return window.crypto.getRandomValues(new Uint8Array(16)).join('');
+    // a nonce (number once) is an arbitrary number that can be used just once in a cryptographic communication
+    const nonce = window.crypto.getRandomValues(new Uint8Array(16)).join('');
+    return new TextEncoder().encode(nonce);
 }
 
-function _arrayBufferToBase64(buffer) {
+function arrayBufferToBase64(buffer) {
     const bytes = new Uint8Array(buffer);
     let binary = '';
 
@@ -21,24 +16,69 @@ function _arrayBufferToBase64(buffer) {
     return window.btoa(binary);
 }
 
+const keyUsages = Object.freeze(['deriveKey', 'deriveBits']);
+const algorithmType = 'ECDH'; // Elliptic Curve Diffie-Hellman
+const algorithm = Object.freeze({
+    name: algorithmType,
+    namedCurve: 'P-384', // 384-bit prime curve
+});
+const format = 'jwk'; // json web key format
+
 class Be8 {
     #accID = '';
+    #publicKeys = new Map();
+    #privateKeys = new Map();
+    #groupKeys = new Map();
 
     constructor(accID) {
+        const hasPrivkey = localStorage.getItem('privateKey');
+        const hasPubKey = localStorage.getItem('publicKey');
+        const storedAccID = localStorage.getItem('accID');
+
         this.#accID = accID;
+
+        if (storedAccID !== accID) {
+            console.log('new acc or first time');
+        } else {
+            console.log('old acc');
+
+            if (hasPrivkey && hasPubKey) {
+                this.#publicKeys.set(accID, JSON.parse(hasPubKey));
+                this.#privateKeys.set(accID, JSON.parse(hasPrivkey));
+            } else {
+                console.log('old keys but no keys');
+            }
+        }
+    }
+
+    hasKeys() {
+        return (
+            this.#publicKeys.has(this.#accID) &&
+            this.#privateKeys.has(this.#accID)
+        );
     }
 
     async generatePrivAndPubKey() {
-        return window.crypto.subtle
-            .generateKey(algorithm, true, keyUsages)
-            .then(function ({ privateKey, publicKey }) {
-                const proms = [
-                    window.crypto.subtle.exportKey(format, publicKey),
-                    window.crypto.subtle.exportKey(format, privateKey),
-                ];
+        const { privateKey, publicKey } =
+            await window.crypto.subtle.generateKey(algorithm, true, keyUsages);
+        const proms = [
+            window.crypto.subtle.exportKey(format, publicKey),
+            window.crypto.subtle.exportKey(format, privateKey),
+        ];
+        const keys = await Promise.all(proms);
 
-                return Promise.all(proms);
-            });
+        this.#publicKeys.set(this.#accID, keys[0]);
+        this.#privateKeys.set(this.#accID, keys[1]);
+
+        return keys;
+    }
+
+    async _encryptText(accIDSender, accIDReceiver, text) {
+        const publicKey = this.#publicKeys.get(accIDReceiver);
+        const privateKey = this.#privateKeys.get(accIDSender);
+        const key = await this.getDerivedKey(publicKey, privateKey);
+
+        return await this.encryptText(key, text);
     }
 
     async getDerivedKey(publicKeyJwk, privateKeyJwk) {
@@ -81,7 +121,7 @@ class Be8 {
         const iv = generateIV();
         const algorithm = {
             name: 'AES-GCM',
-            iv: new TextEncoder().encode(iv),
+            iv,
         };
 
         return window.crypto.subtle
@@ -102,7 +142,7 @@ class Be8 {
         );
         const algorithm = {
             name: 'AES-GCM',
-            iv: new TextEncoder().encode(iv),
+            iv,
         };
 
         return window.crypto.subtle
@@ -117,12 +157,12 @@ class Be8 {
 
         return window.crypto.subtle
             .encrypt(
-                { name: 'AES-GCM', iv: new TextEncoder().encode(generateIV()) },
+                { name: 'AES-GCM', iv: generateIV() },
                 derivedKey,
                 encodedText
             )
             .then(function (encryptedData) {
-                return _arrayBufferToBase64(encryptedData);
+                return arrayBufferToBase64(encryptedData);
             });
     }
 
@@ -133,7 +173,7 @@ class Be8 {
         );
         const algorithm = {
             name: 'AES-GCM',
-            iv: new TextEncoder().encode(generateIV()),
+            iv: generateIV(),
         };
 
         return window.crypto.subtle

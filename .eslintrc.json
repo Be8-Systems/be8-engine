@@ -1,5 +1,5 @@
 {
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",	
     "env": {
         "browser": true,
         "es6": true,
@@ -16,7 +16,7 @@
         "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
-        "ecmaVersion": 2020,
+        "ecmaVersion": 13,
         "sourceType": "module"
     },
     "rules": {
@@ -36,5 +36,12 @@
             "error",
             "always"
         ]
-    }
+    },
+    "overrides": [{
+        "files": ["./lib/**/*.mjs"],
+        "rules": {
+            "functional/no-conditional-statement": "off",
+            "functional/no-throw-statement": "off"
+        }
+    }]
 }

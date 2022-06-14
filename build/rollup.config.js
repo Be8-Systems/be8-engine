@@ -8,6 +8,7 @@ const prettierConfig = {
 };
 const eslintConfig = {
     fix: true,
+    requireConfigFile: false,
     include: ['lib/*.mjs'],
 };
 const config = {
