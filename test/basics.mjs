@@ -1,4 +1,4 @@
-import Be8 from './bundle.js';
+import Be8 from './bundle.mjs';
 
 QUnit.module('Basics');
 
@@ -8,3 +8,5 @@ QUnit.test('Check if keys are generated', async function (assert) {
     await be8.generatePrivAndPubKey();
     return assert.equal(be8.hasKeys(), true, 'Be8 object returns keys.');
 });
+
+export default {};

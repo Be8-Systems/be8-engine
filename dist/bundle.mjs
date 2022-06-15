@@ -16,6 +16,20 @@ function arrayBufferToBase64(buffer) {
     return window.btoa(binary);
 }
 
+function getTypeOfKey(id) {
+    if (!id) {
+        throw 'id is required in getTypeOfKey';
+    }
+    if (id.charAt(0) === 'g') {
+        return 'group';
+    }
+    if (id.charAt(0) === 'c') {
+        return 'channel';
+    }
+
+    return 'dialog';
+}
+
 const keyUsages = Object.freeze(['deriveKey', 'deriveBits']);
 const algorithmType = 'ECDH'; // Elliptic Curve Diffie-Hellman
 const algorithm = Object.freeze({
@@ -29,6 +43,7 @@ class Be8 {
     #publicKeys = new Map();
     #privateKeys = new Map();
     #groupKeys = new Map();
+    #channelKeys = new Map();
 
     constructor(accID) {
         const hasPrivkey = localStorage.getItem('privateKey');
@@ -36,6 +51,10 @@ class Be8 {
         const storedAccID = localStorage.getItem('accID');
 
         this.#accID = accID;
+
+        if (!accID) {
+            throw 'no acc id passed to constructor';
+        }
 
         if (storedAccID !== accID) {
             console.log('new acc or first time');
@@ -46,7 +65,7 @@ class Be8 {
                 this.#publicKeys.set(accID, JSON.parse(hasPubKey));
                 this.#privateKeys.set(accID, JSON.parse(hasPrivkey));
             } else {
-                console.log('old keys but no keys');
+                console.log('old acc but no keys');
             }
         }
     }
@@ -58,18 +77,43 @@ class Be8 {
         );
     }
 
-    addPublicKeys(publicKeys) {
+    #getKey(id) {
+        const type = getTypeOfKey(id);
+
+        if (type === 'group') {
+            return this.#groupKeys.get(id);
+        }
+        if (type === 'channel') {
+            return this.#channelKeys.get(id);
+        }
+
+        return this.#publicKeys.get(id);
+    }
+
+    addPublicKeys(publicKeys = []) {
         publicKeys.forEach(({ accID, publicKey }) =>
             this.#publicKeys.set(accID, publicKey)
         );
     }
 
     addPublicKey(accID, key) {
-        this.#publicKeys.set(accID, key);
+        if (accID && key) {
+            this.#publicKeys.set(accID, key);
+        } else {
+            console.log(
+                `missing accID: "${accID}" or key: "${key}" in addPublicKey`
+            );
+        }
     }
 
     addGroupKey(groupID, key) {
-        this.#groupKeys.set(groupID, key);
+        if (groupID && key) {
+            this.#groupKeys.set(groupID, key);
+        } else {
+            console.log(
+                `missing accID: "${groupID}" or key: "${key}" in addGroupKey`
+            );
+        }
     }
 
     async generatePrivAndPubKey() {
@@ -88,38 +132,45 @@ class Be8 {
     }
 
     async encryptTextSimple(accIDSender, accIDReceiver, text) {
-        const publicKey = this.#publicKeys.get(accIDReceiver);
+        const publicKey = this.#getKey(accIDReceiver);
         const privateKey = this.#privateKeys.get(accIDSender);
 
         if (!publicKey) {
-            console.log(`Missing public key for ${accIDReceiver}`);
+            throw `Missing public key for ${accIDReceiver} at encryptTextSimple`;
         }
         if (!privateKey) {
-            console.log(`Missing private key for ${accIDSender}`);
+            throw `Missing private key for ${accIDSender} at encryptTextSimple`;
         }
 
-        const key = await this.getDerivedKey(publicKey, privateKey);
+        const derivedKey = await this.getDerivedKey(publicKey, privateKey);
 
-        return await this.encryptText(key, text);
+        return await this.encryptText(derivedKey, text);
     }
 
     async decryptTextSimple(accIDSender, accIDReceiver, cipherText, iv) {
-        const publicKey = this.#publicKeys.get(accIDSender);
+        const publicKey = this.#getKey(accIDSender);
         const privateKey = this.#privateKeys.get(accIDReceiver);
 
         if (!publicKey) {
-            console.log(`Missing public key for ${accIDSender}`);
+            throw `Missing public key for ${accIDSender} at decryptTextSimple`;
         }
         if (!privateKey) {
-            console.log(`Missing private key for ${accIDReceiver}`);
+            throw `Missing private key for ${accIDReceiver} at decryptTextSimple`;
         }
 
-        const key = await this.getDerivedKey(publicKey, privateKey);
+        const derivedKey = await this.getDerivedKey(publicKey, privateKey);
 
-        return await this.decryptText(key, cipherText, iv);
+        return await this.decryptText(derivedKey, cipherText, iv);
     }
 
     async getDerivedKey(publicKeyJwk, privateKeyJwk) {
+        if (!publicKeyJwk) {
+            throw 'no public key passed to getDerivedKey';
+        }
+        if (!privateKeyJwk) {
+            throw 'no private key passed to getDerivedKey';
+        }
+
         const publicKey = window.crypto.subtle.importKey(
             format,
             publicKeyJwk,
@@ -154,13 +205,17 @@ class Be8 {
         });
     }
 
-    async encryptText(derivedKey, text) {
+    async encryptText(derivedKey, text = '') {
         const encodedText = new TextEncoder().encode(text);
         const iv = generateIV();
         const algorithm = {
             name: 'AES-GCM',
             iv,
         };
+
+        if (!derivedKey) {
+            throw 'no derived key passed to encryptText';
+        }
 
         return window.crypto.subtle
             .encrypt(algorithm, derivedKey, encodedText)
@@ -183,6 +238,13 @@ class Be8 {
             iv,
         };
 
+        if (!derivedKey) {
+            throw 'no derived key passed to decryptText';
+        }
+        if (!iv) {
+            throw 'no iv (Initialization vector) passed to decryptText';
+        }
+
         return window.crypto.subtle
             .decrypt(algorithm, derivedKey, uintArray)
             .then(function (decryptedData) {
@@ -190,8 +252,13 @@ class Be8 {
             });
     }
 
+    // not tested yet
     async encryptImage(derivedKey, image) {
         const encodedText = new TextEncoder().encode(image);
+
+        if (!derivedKey) {
+            throw 'no derived key passed to decryptText';
+        }
 
         return window.crypto.subtle
             .encrypt(
@@ -204,6 +271,7 @@ class Be8 {
             });
     }
 
+    // not tested yet
     async decryptImage(derivedKey, encryptedMsg) {
         const mstring = window.atob(encryptedMsg);
         const uintArray = new Uint8Array(
@@ -213,6 +281,10 @@ class Be8 {
             name: 'AES-GCM',
             iv: generateIV(),
         };
+
+        if (!derivedKey) {
+            throw 'no derived key passed to decryptText';
+        }
 
         return window.crypto.subtle
             .decrypt(algorithm, derivedKey, uintArray)
