@@ -58,3 +58,9 @@ be8.();
 
 ```javascript
 ```
+
+## building
+
+```bash
+npm run build
+```

@@ -16,8 +16,7 @@ const config = {
   output: {
     format: 'esm',
     name: 'be8',
-    file: './dist/bundle.js',
-    preferConst: true,
+    file: './dist/bundle.js'
   },
   plugins: [
     eslint(eslintConfig),

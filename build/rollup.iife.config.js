@@ -1,5 +1,5 @@
 import prettier from 'rollup-plugin-prettier';
-import { terser } from 'rollup-plugin-terser';
+import { terser } from 'rollup-plugin-terser'; // minifier
 
 const prettierConfig = {
     tabWidth: 4,

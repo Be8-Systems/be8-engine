@@ -1,5 +1,4 @@
 // https://api.qunitjs.com/
-
 import Be8 from './bundle.js';
 
 const be8Sender = new Be8(1);
@@ -55,7 +54,7 @@ QUnit.test('Communication between two and a third one is trying to decrypt', asy
     const textFirstDecrypt = await be8Sender.encryptText(derivedKeySENDER, text);
     const prom = be8spy.decryptText(derivedKeySpy, textFirstDecrypt.cipherText, textFirstDecrypt.iv);
 
-    return assert.rejects(prom);
+    return assert.rejects(prom, 'The third one is not able to decrypt');
 });
 
 QUnit.test('Simplified encrypt and decrypt', async function (assert) {
