@@ -35,6 +35,28 @@ QUnit.test('Throw at encryptTextSimple due to no receiver key', async function (
     return assert.rejects(prom, /Missing public key for 2 at encryptTextSimple/, 'Throw at encryptTextSimple due to no sender key');
 });
 
+QUnit.test('Throw at encryptImageSimple due to no sender key', async function (assert) {
+    const text = 'Hallo Welt';
+    const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
+    
+    be8Receiver.addPublicKey('2', publicKeyRECEIVER);
+
+    const prom = be8Receiver.encryptImageSimple('1', '2', text);
+    
+    return assert.rejects(prom, /Missing private key for 2 at encryptImageSimple/, 'Throw at encryptImageSimple due to no sender key');
+});
+
+QUnit.test('Throw at encryptImageSimple due to no receiver key', async function (assert) {
+    const text = 'Hallo Welt';
+    const [publicKeySENDER] = await be8Sender.generatePrivAndPubKey();
+    
+    be8Sender.addPublicKey('1', publicKeySENDER);
+
+    const prom = be8Sender.encryptImageSimple('1', '2', text);
+    
+    return assert.rejects(prom, /Missing public key for 1 at encryptImageSimple/, 'Throw at encryptImageSimple due to no sender key');
+});
+
 QUnit.test('Throw at getDerivedKey due to missing public key' , async function (assert) {
     return assert.rejects(be8Sender.getDerivedKey(), /no public key passed to getDerivedKey/, 'Throw at getDerivedKey due to missing public key');
 });
