@@ -1,7 +1,7 @@
 // generates an Initialization vector
 function generateIV() {
-    // a nonce (number once) is an arbitrary number that can be used just once in a cryptographic communication
-    const nonce = window.crypto.getRandomValues(new Uint8Array(16)).join('');
+    // a nonce (number once) is an arbitrary string that can be used just once in a cryptographic communication
+    const nonce = self.crypto.randomUUID();
     return new TextEncoder().encode(nonce);
 }
 
@@ -75,10 +75,10 @@ class Be8 {
         const privatekey = this.#privateKeys.has(this.#accID);
 
         if (!publicKey) {
-            console.log(`No public key for ${this.#accID}`);
+            console.log(`No public key for ${this.#accID} in hasKeys`);
         }
         if (!privatekey) {
-            console.log(`No private key for ${this.#accID}`);
+            console.log(`No private key for ${this.#accID} in hasKeys`);
         }
 
         return publicKey && privatekey;
@@ -104,13 +104,14 @@ class Be8 {
     }
 
     addPublicKey(accID, key) {
-        if (accID && key) {
-            this.#publicKeys.set(accID, key);
-        } else {
-            console.log(
-                `missing accID: "${accID}" or key: "${key}" in addPublicKey`
-            );
+        if (!accID) {
+            console.log(`missing accID: "${accID}" at addPublicKey`);
         }
+        if (!key) {
+            console.log(`missing key: "${key}" at addPublicKey`);
+        }
+
+        return this.#publicKeys.set(accID, key);
     }
 
     addGroupKey(groupID, key) {
