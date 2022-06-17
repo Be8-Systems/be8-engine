@@ -20,6 +20,13 @@ Returns a boolean.
 be8.hasKeys();
 ```
 
+## getAccID
+Return the accID.
+
+```javascript
+be8.getAccID();
+```
+
 ## addPublicKeys (publicKeys = [])
 Takes an array of public key accid key pair values and calls addPublicKey for every pair. 
 
@@ -70,6 +77,13 @@ Returns freshly generated private and public keys. Automatically stores the keys
 
 ```javascript
 const [publicKey, privateKey] = await be8.generatePrivAndPubKey();
+```
+
+## async generateGroupKeys
+Generates a group key and stores it in a private map.
+
+```javascript
+const [publicKey, privateKey] = await be8.generateGroupKeys();
 ```
 
 ## async getDerivedKey(publicKey, privateKey)
