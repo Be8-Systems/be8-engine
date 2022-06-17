@@ -138,6 +138,19 @@ Uses the derivedKey, the cipherImage and the iv to decrypt a base64Image.
 const base64Image = await be8.encryptImage(derivedKey, cipherImage, iv);
 ```
 
+## async encryptImageSimple (accIDSender, accIDReceiver, base64Image)
+
+```javascript
+const base64Image = await be8.encryptImageSimple(accIDSender, accIDReceiver, base64Image);
+```
+
+## async decryptImageSimple (accIDSender, accIDReceiver, cipherImage, iv)
+
+
+```javascript
+const base64Image = await be8.decryptImageSimple(accIDSender, accIDReceiver, cipherImage, iv);
+```
+
 ## Scripts
 ### building
 Rollup creates two versions one is a esm6 version and a minified iife one.

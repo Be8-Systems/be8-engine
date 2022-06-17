@@ -138,38 +138,6 @@ class Be8 {
         return keys;
     }
 
-    async encryptTextSimple(accIDSender, accIDReceiver, text) {
-        const publicKey = this.#getKey(accIDReceiver);
-        const privateKey = this.#privateKeys.get(accIDSender);
-
-        if (!publicKey) {
-            throw `Missing public key for ${accIDReceiver} at encryptTextSimple`;
-        }
-        if (!privateKey) {
-            throw `Missing private key for ${accIDSender} at encryptTextSimple`;
-        }
-
-        const derivedKey = await this.getDerivedKey(publicKey, privateKey);
-
-        return await this.encryptText(derivedKey, text);
-    }
-
-    async decryptTextSimple(accIDSender, accIDReceiver, cipherText, iv) {
-        const publicKey = this.#getKey(accIDSender);
-        const privateKey = this.#privateKeys.get(accIDReceiver);
-
-        if (!publicKey) {
-            throw `Missing public key for ${accIDSender} at decryptTextSimple`;
-        }
-        if (!privateKey) {
-            throw `Missing private key for ${accIDReceiver} at decryptTextSimple`;
-        }
-
-        const derivedKey = await this.getDerivedKey(publicKey, privateKey);
-
-        return await this.decryptText(derivedKey, cipherText, iv);
-    }
-
     async getDerivedKey(publicKey, privateKey) {
         if (!publicKey) {
             throw 'no public key passed to getDerivedKey';
@@ -259,7 +227,38 @@ class Be8 {
             });
     }
 
-    // not tested yet
+    async encryptTextSimple(accIDSender, accIDReceiver, text) {
+        const publicKey = this.#getKey(accIDReceiver);
+        const privateKey = this.#privateKeys.get(accIDSender);
+
+        if (!publicKey) {
+            throw `Missing public key for ${accIDReceiver} at encryptTextSimple`;
+        }
+        if (!privateKey) {
+            throw `Missing private key for ${accIDSender} at encryptTextSimple`;
+        }
+
+        const derivedKey = await this.getDerivedKey(publicKey, privateKey);
+
+        return await this.encryptText(derivedKey, text);
+    }
+
+    async decryptTextSimple(accIDSender, accIDReceiver, cipherText, iv) {
+        const publicKey = this.#getKey(accIDSender);
+        const privateKey = this.#privateKeys.get(accIDReceiver);
+
+        if (!publicKey) {
+            throw `Missing public key for ${accIDSender} at decryptTextSimple`;
+        }
+        if (!privateKey) {
+            throw `Missing private key for ${accIDReceiver} at decryptTextSimple`;
+        }
+
+        const derivedKey = await this.getDerivedKey(publicKey, privateKey);
+
+        return await this.decryptText(derivedKey, cipherText, iv);
+    }
+
     async encryptImage(derivedKey, base64Image) {
         const encodedText = new TextEncoder().encode(base64Image);
         const iv = generateIV();
@@ -278,7 +277,6 @@ class Be8 {
             });
     }
 
-    // not tested yet
     async decryptImage(derivedKey, cipherImage, iv) {
         const mstring = window.atob(cipherImage);
         const uintArray = new Uint8Array(
@@ -298,6 +296,16 @@ class Be8 {
             .then(function (decryptedData) {
                 return new TextDecoder().decode(decryptedData);
             });
+    }
+
+    // implement me
+    async encryptImageSimple(accIDSender, accIDReceiver, base64Image) {
+        return { accIDSender, accIDReceiver, base64Image };
+    }
+
+    // implement me
+    async decryptImageSimple(accIDSender, accIDReceiver, cipherImage, iv) {
+        return { accIDSender, accIDReceiver, cipherImage, iv };
     }
 }
 
