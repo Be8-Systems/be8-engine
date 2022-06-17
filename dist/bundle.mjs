@@ -1,7 +1,7 @@
 // generates an Initialization vector
 function generateIV() {
-    // a nonce (number once) is an arbitrary number that can be used just once in a cryptographic communication
-    const nonce = window.crypto.getRandomValues(new Uint8Array(16)).join('');
+    // a nonce (number once) is an arbitrary string that can be used just once in a cryptographic communication
+    const nonce = self.crypto.randomUUID();
     return new TextEncoder().encode(nonce);
 }
 
@@ -52,8 +52,8 @@ class Be8 {
 
         this.#accID = accID;
 
-        if (!accID) {
-            throw 'no acc id passed to constructor';
+        if (typeof accID !== 'string' && !isNaN('1')) {
+            throw `no acc id or wrong type passed to the constructor got ${accID}`;
         }
 
         if (storedAccID !== accID) {
@@ -71,10 +71,17 @@ class Be8 {
     }
 
     hasKeys() {
-        return (
-            this.#publicKeys.has(this.#accID) &&
-            this.#privateKeys.has(this.#accID)
-        );
+        const publicKey = this.#publicKeys.has(this.#accID);
+        const privatekey = this.#privateKeys.has(this.#accID);
+
+        if (!publicKey) {
+            console.log(`No public key for ${this.#accID} in hasKeys`);
+        }
+        if (!privatekey) {
+            console.log(`No private key for ${this.#accID} in hasKeys`);
+        }
+
+        return publicKey && privatekey;
     }
 
     #getKey(id) {
@@ -97,13 +104,14 @@ class Be8 {
     }
 
     addPublicKey(accID, key) {
-        if (accID && key) {
-            this.#publicKeys.set(accID, key);
-        } else {
-            console.log(
-                `missing accID: "${accID}" or key: "${key}" in addPublicKey`
-            );
+        if (!accID) {
+            console.log(`missing accID: "${accID}" at addPublicKey`);
         }
+        if (!key) {
+            console.log(`missing key: "${key}" at addPublicKey`);
+        }
+
+        return this.#publicKeys.set(accID, key);
     }
 
     addGroupKey(groupID, key) {
@@ -163,30 +171,30 @@ class Be8 {
         return await this.decryptText(derivedKey, cipherText, iv);
     }
 
-    async getDerivedKey(publicKeyJwk, privateKeyJwk) {
-        if (!publicKeyJwk) {
+    async getDerivedKey(publicKey, privateKey) {
+        if (!publicKey) {
             throw 'no public key passed to getDerivedKey';
         }
-        if (!privateKeyJwk) {
+        if (!privateKey) {
             throw 'no private key passed to getDerivedKey';
         }
 
-        const publicKey = window.crypto.subtle.importKey(
+        const publicKeyProm = window.crypto.subtle.importKey(
             format,
-            publicKeyJwk,
+            publicKey,
             algorithm,
             true,
             []
         );
-        const privateKey = window.crypto.subtle.importKey(
+        const privateKeyProm = window.crypto.subtle.importKey(
             format,
-            privateKeyJwk,
+            privateKey,
             algorithm,
             true,
             keyUsages
         );
 
-        return Promise.all([publicKey, privateKey]).then(function ([
+        return Promise.all([publicKeyProm, privateKeyProm]).then(function ([
             publicKey,
             privateKey,
         ]) {
@@ -253,33 +261,33 @@ class Be8 {
     }
 
     // not tested yet
-    async encryptImage(derivedKey, image) {
-        const encodedText = new TextEncoder().encode(image);
+    async encryptImage(derivedKey, base64Image) {
+        const encodedText = new TextEncoder().encode(base64Image);
+        const iv = generateIV();
 
         if (!derivedKey) {
             throw 'no derived key passed to decryptText';
         }
 
         return window.crypto.subtle
-            .encrypt(
-                { name: 'AES-GCM', iv: generateIV() },
-                derivedKey,
-                encodedText
-            )
+            .encrypt({ name: 'AES-GCM', iv }, derivedKey, encodedText)
             .then(function (encryptedData) {
-                return arrayBufferToBase64(encryptedData);
+                return {
+                    cipherImage: arrayBufferToBase64(encryptedData),
+                    iv,
+                };
             });
     }
 
     // not tested yet
-    async decryptImage(derivedKey, encryptedMsg) {
-        const mstring = window.atob(encryptedMsg);
+    async decryptImage(derivedKey, cipherImage, iv) {
+        const mstring = window.atob(cipherImage);
         const uintArray = new Uint8Array(
             [...mstring].map((char) => char.charCodeAt(0))
         );
         const algorithm = {
             name: 'AES-GCM',
-            iv: generateIV(),
+            iv,
         };
 
         if (!derivedKey) {
