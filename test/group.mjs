@@ -46,4 +46,8 @@ QUnit.test('Generate Group Message, 2 participants regenerate after a third one 
 
     assert.equal(secondMessageDecryptBySecond, secondMessage, 'Phase 2: Second participant can decrypt second message');
     assert.equal(secondMessageDecryptByThird, secondMessage, 'Phase 2: Third participant can decrypt second message');
+
+    const firstMessageDecryptByNewerKey = be8Third.decryptText(gOwnerDerivedKeyV2, cipherText, iv);
+
+    assert.rejects(firstMessageDecryptByNewerKey, 'Phase 3: prevent new member to read old message');
 });
