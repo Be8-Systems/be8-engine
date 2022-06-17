@@ -10,7 +10,7 @@ QUnit.test('Throw at constructor due to no id', async function (assert) {
         return new Be8();
     }
 
-    assert.throws(fn, /no acc id passed to constructor/, 'Throw at constructor due to no id');
+    assert.throws(fn, /no acc id or wrong type passed to the constructor got undefined/, 'Throw at constructor due to no id');
 });
 
 QUnit.test('Throw at encryptTextSimple due to no sender key', async function (assert) {
@@ -36,19 +36,20 @@ QUnit.test('Throw at encryptTextSimple due to no receiver key', async function (
 });
 
 QUnit.test('Throw at getDerivedKey due to missing public key' , async function (assert) {
-
+    return assert.rejects(be8Sender.getDerivedKey(), /no public key passed to getDerivedKey/, 'Throw at getDerivedKey due to missing public key');
 });
 
 QUnit.test('Throw at getDerivedKey due to missing private key' , async function (assert) {
-
+    const [publicKey] = await be8Sender.generatePrivAndPubKey();
+    return assert.rejects(be8Sender.getDerivedKey(publicKey), /no private key passed to getDerivedKey/, 'Throw at getDerivedKey due to missing private key');
 });
 
 QUnit.test('Throw at encryptText due to missing derivedKey' , async function (assert) {
-
+    return assert.rejects(be8Sender.encryptText(), /no derived key passed to encryptText/, 'Throw at encryptText due to missing derivedKey');
 });
 
 QUnit.test('Throw at decryptText due to missing derivedKey' , async function (assert) {
-
+    return assert.rejects(be8Sender.decryptText(), /no derived key passed to decryptText/, 'Throw at decryptText due to missing derivedKey');
 });
 
 QUnit.test('Throw at decryptText due to missing iv' , async function (assert) {

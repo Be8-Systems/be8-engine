@@ -52,10 +52,9 @@ class Be8 {
 
         this.#accID = accID;
 
-        if (typeof accID !== 'string' && !isNaN('1')) {
+        if (typeof accID !== 'string' || isNaN(accID)) {
             throw `no acc id or wrong type passed to the constructor got ${accID}`;
         }
-
         if (storedAccID !== accID) {
             console.log('new acc or first time');
         } else {
@@ -236,7 +235,7 @@ class Be8 {
             });
     }
 
-    async decryptText(derivedKey, cipherText, iv) {
+    async decryptText(derivedKey, cipherText = '', iv) {
         const mstring = window.atob(cipherText);
         const uintArray = new Uint8Array(
             [...mstring].map((char) => char.charCodeAt(0))
