@@ -4,7 +4,8 @@ safe e2ee communications.
 
 ## usage
 The constructer takes one parameter the accID. 
-In case of no id passed it throws an error.
+In case of no id passed it throws an error. ID has to be
+a string that is a number.
 
 ```javascript
 const be8 = new Be8('1');
@@ -20,7 +21,7 @@ be8.hasKeys();
 ```
 
 ## addPublicKeys (publicKeys = [])
-Takes an array of key accid key pair values and calls addPublicKey for everyone. 
+Takes an array of public key accid key pair values and calls addPublicKey for every pair. 
 
 ```javascript 
 const publicKeys = [{
@@ -39,7 +40,7 @@ be8.addPublicKeys(publicKeys);
 ```
 
 ## addPublicKey(accID, key)
-Adds an accID key pair value to a private map.
+Adds an accID publicKey pair value to a private map.
 
 ```javascript
 const publicKey = {
@@ -87,11 +88,10 @@ After creating a [derivedKey](#async-getderivedkeypublickeyjwk-privatekeyjwk) we
 const text = 'Hello World';
 const derivedKey = await be8.getDerivedKey(publicKey, privateKey);
 const { cipherText, iv } = await be8.encryptText(derivedKey, text);
-
 ```
 
 ## async decryptText(derivedKey, cipherText, iv)
-With the help of the key, the cipherText and an iv we can decrypt messages.
+With the help of the key, the cipherText and an iv, we can decrypt messages.
 
 ```javascript
 const cipherText = 'ASDASD9324/&§$jn';
@@ -132,7 +132,7 @@ const { cipherImage, iv } = await be8.encryptImage(derivedKey, base64Image);
 ```
 
 ## async decryptImage(derivedKey, cipherImage, iv)
-Uses the derivedKey, the cipherImage and the iv to create a base64Image.
+Uses the derivedKey, the cipherImage and the iv to decrypt a base64Image.
 
 ```javascript
 const base64Image = await be8.encryptImage(derivedKey, cipherImage, iv);
