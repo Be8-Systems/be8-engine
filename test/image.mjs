@@ -7,6 +7,16 @@ QUnit.module('Images');
 QUnit.test('decryptImage check if base64 is altered', async function (assert) {
     const be8Sender = new Be8('1');
     const be8Receiver = new Be8('2');
-    // check if encrypted image is altered
-    // check if decrypted image is same as base64Image
+    const [, privateKeySENDER] = await be8Sender.generatePrivAndPubKey();
+    const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
+    const derivedKey = await be8Sender.getDerivedKey(publicKeyRECEIVER, privateKeySENDER);
+    const { iv, cipherImage } = await be8Sender.encryptImage(derivedKey, base64Img);
+    
+    assert.notEqual(cipherImage, base64Img, 'base64 is altered');
+    assert.true(cipherImage.length > base64Img.length, 'cipherImage is longer than base64Img');
+
+    const decryptedImage = await be8Sender.decryptImage(derivedKey, cipherImage, iv);
+    
+    assert.true(decryptedImage.length === base64Img.length, 'decryptedImage is as long as base64Img');
+    return assert.equal(decryptedImage, base64Img, 'original base64 is returned');
 });
