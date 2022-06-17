@@ -52,5 +52,15 @@ QUnit.test('Throw at decryptText due to missing derivedKey' , async function (as
 });
 
 QUnit.test('Throw at decryptText due to missing iv' , async function (assert) {
+    const text = 'Hallo Welt';
+    const [publicKeySENDER] = await be8Sender.generatePrivAndPubKey();
+    const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
 
+    be8Sender.addPublicKey('2', publicKeyRECEIVER);
+    be8Receiver.addPublicKey('1', publicKeySENDER);
+
+    const { cipherText } = await be8Sender.encryptTextSimple('1', '2', text);
+    const prom = be8Sender.decryptTextSimple('2', '1', cipherText);
+
+    return assert.rejects(prom, /no iv \(Initialization vector\) passed to decryptText/, 'Throw at decryptText due to missing iv');
 });
