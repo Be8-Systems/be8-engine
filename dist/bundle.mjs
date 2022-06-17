@@ -298,14 +298,36 @@ class Be8 {
             });
     }
 
-    // implement me
     async encryptImageSimple(accIDSender, accIDReceiver, base64Image) {
-        return { accIDSender, accIDReceiver, base64Image };
+        const publicKey = this.#getKey(accIDReceiver);
+        const privateKey = this.#privateKeys.get(accIDSender);
+
+        if (!publicKey) {
+            throw `Missing public key for ${accIDSender} at encryptImageSimple`;
+        }
+        if (!privateKey) {
+            throw `Missing private key for ${accIDReceiver} at encryptImageSimple`;
+        }
+
+        const derivedKey = await this.getDerivedKey(publicKey, privateKey);
+
+        return await this.encryptImage(derivedKey, base64Image);
     }
 
-    // implement me
     async decryptImageSimple(accIDSender, accIDReceiver, cipherImage, iv) {
-        return { accIDSender, accIDReceiver, cipherImage, iv };
+        const publicKey = this.#getKey(accIDSender);
+        const privateKey = this.#privateKeys.get(accIDReceiver);
+
+        if (!publicKey) {
+            throw `Missing public key for ${accIDSender} at decryptImageSimple`;
+        }
+        if (!privateKey) {
+            throw `Missing private key for ${accIDReceiver} at decryptImageSimple`;
+        }
+
+        const derivedKey = await this.getDerivedKey(publicKey, privateKey);
+
+        return await this.decryptImage(derivedKey, cipherImage, iv);
     }
 }
 
