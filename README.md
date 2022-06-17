@@ -1,5 +1,6 @@
 # be8-engine
-Be8 uses a Elliptic Curve Diffie-Hellman 384 bit prime curve encryption. 
+Be8 uses a Elliptic Curve Diffie-Hellman 384 bit prime curve encryption to ensure
+safe e2ee communications.
 
 ## usage
 The constructer takes one parameter the accID. 
@@ -139,7 +140,8 @@ const base64Image = await be8.encryptImage(derivedKey, cipherImage, iv);
 
 ## Scripts
 ### building
-Rollup creates two versions a esm6 version and a minified iife one.
+Rollup creates two versions one is a esm6 version and a minified iife one.
+Both can be found in /dist.
 
 ```bash
 npm run build
