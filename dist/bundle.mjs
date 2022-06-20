@@ -47,10 +47,6 @@ class Be8 {
     #channelKeys = new Map();
 
     constructor(accID, indexedDB) {
-        const hasPrivkey = localStorage.getItem('privateKey');
-        const hasPubKey = localStorage.getItem('publicKey');
-        const storedAccID = localStorage.getItem('accID');
-
         this.#accID = accID;
         this.#indexedDB = indexedDB;
 
@@ -60,22 +56,32 @@ class Be8 {
         if (!indexedDB) {
             throw 'no indexedDB passed to the constructor';
         }
-        if (storedAccID !== accID) {
-            console.log('new acc or first time');
-        } else {
-            console.log('old acc');
-
-            if (hasPrivkey && hasPubKey) {
-                this.#publicKeys.set(accID, JSON.parse(hasPubKey));
-                this.#privateKeys.set(accID, JSON.parse(hasPrivkey));
-            } else {
-                console.log('old acc but no keys');
-            }
-        }
     }
 
-    async loadKeysInMemory() {
+    async setup() {
         const keys = await this.getCachedKeys();
+        const privateTx = this.#indexedDB.result.transaction(
+            'privateKeys',
+            'readwrite'
+        );
+        const privateKeysStore = privateTx.objectStore('privateKeys');
+        const all = privateKeysStore.getAll();
+        const newAccID = this.#accID;
+        const privateKey = await new Promise(function (success) {
+            all.onsuccess = function (event) {
+                return success(
+                    event.target.result.find((key) => key.accID === newAccID)
+                );
+            };
+        });
+
+        if (!privateKey) {
+            console.log('brand new acc');
+            await this.generatePrivAndPubKey();
+        } else {
+            console.log('old acc');
+            this.#privateKeys.set(this.#accID, privateKey);
+        }
 
         keys.forEach(({ accID, ...rest }) => this.#publicKeys.set(accID, rest));
 
@@ -113,7 +119,7 @@ class Be8 {
         return this.#publicKeys.get(id);
     }
 
-    addPublicKeys(publicKeys = []) {
+    async addPublicKeys(publicKeys = []) {
         const tx = this.#indexedDB.result.transaction(
             'publicKeys',
             'readwrite'
@@ -126,6 +132,10 @@ class Be8 {
         publicKeys.forEach(({ accID, publicKey }) =>
             publicKeysStore.put({ accID, ...publicKey })
         );
+        console.log('before promise');
+        return await new Promise(function (success) {
+            publicKeysStore.onsuccess = () => success();
+        });
     }
 
     addPublicKey(accID, key) {
@@ -164,9 +174,13 @@ class Be8 {
         const publicKeysStore = tx.objectStore('publicKeys');
         const all = publicKeysStore.getAll();
 
-        return new Promise(function (success) {
+        return await new Promise(function (success) {
             all.onsuccess = function (event) {
-                return success(event.target.result);
+                const keys = event.target.result.map((key) => ({
+                    accID: key.accID,
+                    publicKey: key,
+                }));
+                return success(keys);
             };
         });
     }
@@ -212,8 +226,6 @@ class Be8 {
 
         publicKeysStore.put({ accID: this.#accID, ...keys[0] });
         privateKeysStore.put({ accID: this.#accID, ...keys[1] });
-        this.#publicKeys.set(this.#accID, keys[0]);
-        this.#privateKeys.set(this.#accID, keys[1]);
 
         return keys;
     }
