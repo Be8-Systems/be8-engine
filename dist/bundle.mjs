@@ -199,14 +199,19 @@ class Be8 {
             window.crypto.subtle.exportKey(format, privateKey),
         ];
         const keys = await Promise.all(proms);
-        const tx = this.#indexedDB.result.transaction(
+        const privateTx = this.#indexedDB.result.transaction(
+            'privateKeys',
+            'readwrite'
+        );
+        const publicTX = this.#indexedDB.result.transaction(
             'publicKeys',
             'readwrite'
         );
-        const publicKeysStore = tx.objectStore('publicKeys');
+        const publicKeysStore = publicTX.objectStore('publicKeys');
+        const privateKeysStore = privateTx.objectStore('privateKeys');
 
         publicKeysStore.put({ accID: this.#accID, ...keys[0] });
-        publicKeysStore.put({ accID: '', ...keys[0] });
+        privateKeysStore.put({ accID: this.#accID, ...keys[1] });
         this.#publicKeys.set(this.#accID, keys[0]);
         this.#privateKeys.set(this.#accID, keys[1]);
 

@@ -6,6 +6,7 @@ QUnit.module('Basics');
 QUnit.test('Check if keys are generated', async function (assert) {
     const be8 = new Be8('10', database);
     
+    await be8.loadKeysInMemory();
     await be8.generatePrivAndPubKey();
     return assert.equal(be8.hasGeneratedKeys(), true, 'Be8 object returns keys.');
 });
