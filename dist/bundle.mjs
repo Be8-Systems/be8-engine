@@ -74,6 +74,13 @@ class Be8 {
         }
     }
 
+    async loadKeys() {
+        const keys = await this.getCachedKeys();
+
+        keys.forEach(({ accID, ...rest }) => this.#publicKeys.set(accID, rest));
+        console.log(this.#publicKeys);
+    }
+
     getAccID() {
         return this.#accID;
     }

@@ -11,13 +11,13 @@ a string that is a number.
 const be8 = new Be8('1');
 ```
 
-## hasKeys()
+## hasGeneratedKeys()
 
 Checks if the object already generated keys and if they are stored.
 Returns a boolean.
 
 ```javascript
-be8.hasKeys();
+be8.hasGeneratedKeys();
 ```
 
 ## getAccID
