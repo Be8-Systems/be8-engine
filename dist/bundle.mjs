@@ -129,13 +129,13 @@ class Be8 {
         publicKeys.forEach(({ accID, publicKey }) =>
             this.#publicKeys.set(accID, publicKey)
         );
-        publicKeys.forEach(({ accID, publicKey }) =>
-            publicKeysStore.put({ accID, ...publicKey })
-        );
-        console.log('before promise');
-        return await new Promise(function (success) {
-            publicKeysStore.onsuccess = () => success();
+        const proms = publicKeys.map(function ({ accID, publicKey }) {
+            publicKeysStore.put({ accID, ...publicKey });
+            publicKeysStore.onsuccess = () =>
+                console.log(`added public key for ${accID}`);
         });
+
+        return await Promise.all(proms);
     }
 
     addPublicKey(accID, key) {
