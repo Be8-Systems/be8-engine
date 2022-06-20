@@ -74,18 +74,19 @@ class Be8 {
         }
     }
 
-    async loadKeys() {
+    async loadKeysInMemory() {
         const keys = await this.getCachedKeys();
 
         keys.forEach(({ accID, ...rest }) => this.#publicKeys.set(accID, rest));
-        console.log(this.#publicKeys);
+
+        return keys;
     }
 
     getAccID() {
         return this.#accID;
     }
 
-    hasKeys() {
+    hasGeneratedKeys() {
         const publicKey = this.#publicKeys.has(this.#accID);
         const privatekey = this.#privateKeys.has(this.#accID);
 
@@ -198,7 +199,14 @@ class Be8 {
             window.crypto.subtle.exportKey(format, privateKey),
         ];
         const keys = await Promise.all(proms);
+        const tx = this.#indexedDB.result.transaction(
+            'publicKeys',
+            'readwrite'
+        );
+        const publicKeysStore = tx.objectStore('publicKeys');
 
+        publicKeysStore.put({ accID: this.#accID, ...keys[0] });
+        publicKeysStore.put({ accID: '', ...keys[0] });
         this.#publicKeys.set(this.#accID, keys[0]);
         this.#privateKeys.set(this.#accID, keys[1]);
 
