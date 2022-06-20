@@ -18,10 +18,11 @@ QUnit.test('Get cached keys from db', async function (assert) {
     be8Receiver.addPublicKey('11', publicKey);
     const keys = await be8Receiver.getCachedKeys();
     
-    keys.forEach(function ({ accID, publicKey }) {
-        console.log(publicKey);
-        assert.equal(typeof publicKey, 'object', 'is a string id');
-        return assert.equal(!isNaN(accID), true, 'is a string id');
+    keys.forEach(function ({ accID, crv, x, y }) {
+        assert.equal(crv, 'P-384', 'Curve is P-384');
+        assert.equal(typeof x, 'string', 'x is a string');
+        assert.equal(typeof y, 'string', 'y is a string');
+        return assert.equal(!isNaN(accID), true, 'is a numeric string id');
     });
 });
 
