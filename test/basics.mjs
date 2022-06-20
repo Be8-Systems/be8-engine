@@ -13,7 +13,7 @@ QUnit.test('Check if keys are generated', async function (assert) {
 QUnit.test('Get cached keys from db', async function (assert) {
     const be8Sender = new Be8('13', database);
     const be8Receiver = new Be8('14', database);
-    await be8Receiver.setup();console.log('after setup');
+    await be8Receiver.setup();
     const publicKeys = await be8Sender.getCachedKeys();
     await be8Receiver.addPublicKeys(publicKeys);
 
