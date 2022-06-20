@@ -17,7 +17,7 @@ QUnit.test('Get cached keys from db', async function (assert) {
     const publicKeys = await be8Sender.getCachedKeys();
     await be8Receiver.addPublicKeys(publicKeys);
 
-    publicKeys.forEach(function ({ accID, crv, x, y }) {
+    publicKeys.forEach(function ({ publicKey: { accID, crv, x, y } }) {
         assert.equal(crv, 'P-384', 'Curve is P-384');
         assert.equal(typeof x, 'string', 'x is a string');
         assert.equal(typeof y, 'string', 'y is a string');
