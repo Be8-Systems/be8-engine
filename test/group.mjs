@@ -1,12 +1,13 @@
+import database from './database.mjs';
 import Be8 from './bundle.mjs';
 
 QUnit.module('Groups');
 
 QUnit.test('Generate Group Message, readable for everyone, 3 participants', async function (assert) {
     let groupversion = 1;
-    const be8groupOwner = new Be8('1');
-    const be8Second = new Be8('2');
-    const be8Third = new Be8('3');
+    const be8groupOwner = new Be8('1', database);
+    const be8Second = new Be8('2', database);
+    const be8Third = new Be8('3', database);
     const ownerKeys = await be8groupOwner.generatePrivAndPubKey();
     const [, groupKeysV1] = await be8groupOwner.generateGroupKeys(groupversion);
     const text = 'hello world'; 
@@ -21,9 +22,9 @@ QUnit.test('Generate Group Message, readable for everyone, 3 participants', asyn
 
 QUnit.test('Generate Group Message, 2 participants regenerate after a third one joins', async function (assert) {
     let groupversion = 1;
-    const be8groupOwner = new Be8('1');
-    const be8Second = new Be8('2');
-    const be8Third = new Be8('3');
+    const be8groupOwner = new Be8('1', database);
+    const be8Second = new Be8('2', database);
+    const be8Third = new Be8('3', database);
     const ownerKeys = await be8groupOwner.generatePrivAndPubKey();
     const secondKeys = await be8Second.generatePrivAndPubKey();
     const [, groupKeysV1] = await be8groupOwner.generateGroupKeys(groupversion);

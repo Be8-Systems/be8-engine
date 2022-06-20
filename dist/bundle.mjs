@@ -39,21 +39,26 @@ const algorithm = Object.freeze({
 const format = 'jwk'; // json web key format
 
 class Be8 {
+    #indexedDB = {};
     #accID = '';
     #publicKeys = new Map();
     #privateKeys = new Map();
     #groupKeys = new Map();
     #channelKeys = new Map();
 
-    constructor(accID) {
+    constructor(accID, indexedDB) {
         const hasPrivkey = localStorage.getItem('privateKey');
         const hasPubKey = localStorage.getItem('publicKey');
         const storedAccID = localStorage.getItem('accID');
 
         this.#accID = accID;
+        this.#indexedDB = indexedDB;
 
         if (typeof accID !== 'string' || isNaN(accID)) {
             throw `no acc id or wrong type passed to the constructor got ${accID}`;
+        }
+        if (!indexedDB) {
+            throw 'no indexedDB passed to the constructor';
         }
         if (storedAccID !== accID) {
             console.log('new acc or first time');
@@ -101,12 +106,27 @@ class Be8 {
     }
 
     addPublicKeys(publicKeys = []) {
+        const tx = this.#indexedDB.result.transaction(
+            'publicKeys',
+            'readwrite'
+        );
+        const publicKeysStore = tx.objectStore('publicKeys');
+
         publicKeys.forEach(({ accID, publicKey }) =>
             this.#publicKeys.set(accID, publicKey)
+        );
+        publicKeys.forEach(({ accID, publicKey }) =>
+            publicKeysStore.put({ accID, ...publicKey })
         );
     }
 
     addPublicKey(accID, key) {
+        const tx = this.#indexedDB.result.transaction(
+            'publicKeys',
+            'readwrite'
+        );
+        const publicKeysStore = tx.objectStore('publicKeys');
+
         if (!accID) {
             console.log(`missing accID: "${accID}" at addPublicKey`);
         }
@@ -114,6 +134,7 @@ class Be8 {
             console.log(`missing key: "${key}" at addPublicKey`);
         }
 
+        publicKeysStore.put({ accID, ...key });
         return this.#publicKeys.set(accID, key);
     }
 
@@ -125,6 +146,21 @@ class Be8 {
                 `missing accID: "${groupID}" or key: "${key}" in addGroupKey`
             );
         }
+    }
+
+    async getCachedKeys() {
+        const tx = this.#indexedDB.result.transaction(
+            'publicKeys',
+            'readwrite'
+        );
+        const publicKeysStore = tx.objectStore('publicKeys');
+        const all = publicKeysStore.getAll();
+
+        return new Promise(function (success) {
+            all.onsuccess = function (event) {
+                return success(event.target.result);
+            };
+        });
     }
 
     async generateGroupKeys(version) {

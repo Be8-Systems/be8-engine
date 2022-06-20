@@ -1,8 +1,9 @@
+import database from './database.mjs';
 import Be8 from './bundle.mjs';
 
-const be8Sender = new Be8('1');
-const be8Receiver = new Be8('2');
-const be8spy = new Be8('3');
+const be8Sender = new Be8('1', database);
+const be8Receiver = new Be8('2', database);
+const be8spy = new Be8('3', database);
 
 QUnit.module('Text');
 
@@ -61,8 +62,12 @@ QUnit.test('Simplified encrypt and decrypt', async function (assert) {
     const [publicKeySENDER] = await be8Sender.generatePrivAndPubKey();
     const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
 
-    be8Sender.addPublicKey('2', publicKeyRECEIVER);
-    be8Receiver.addPublicKey('1', publicKeySENDER);
+    be8Sender.addPublicKeys([{
+        accID: '2', publicKey: publicKeyRECEIVER
+    }]);
+    be8Receiver.addPublicKeys([{
+        accID: '1', publicKey: publicKeySENDER
+    }]);
 
     const { iv, cipherText } = await be8Sender.encryptTextSimple('1', '2', text);
     const decryptText = await be8Sender.decryptTextSimple('2', '1', cipherText, iv);

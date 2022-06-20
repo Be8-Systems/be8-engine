@@ -1,7 +1,8 @@
+import database from './database.mjs';
 import Be8 from './bundle.mjs';
 
-const be8Sender = new Be8('1');
-const be8Receiver = new Be8('2');
+const be8Sender = new Be8('1', database);
+const be8Receiver = new Be8('2', database);
 
 QUnit.module('Exceptions');
 
