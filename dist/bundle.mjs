@@ -226,6 +226,7 @@ class Be8 {
 
         publicKeysStore.put({ accID: this.#accID, ...keys[0] });
         privateKeysStore.put({ accID: this.#accID, ...keys[1] });
+        this.#publicKeys.set(this.#accID, keys[0]);
         this.#privateKeys.set(this.#accID, keys[1]);
 
         await privateTx.complete;
@@ -426,23 +427,46 @@ class Be8 {
         return await this.decryptImage(derivedKey, cipherImage, iv);
     }
 
-    async destroy(name) {
-        const deletion = indexedDB.deleteDatabase(name);
+    async destroy() {
+        const pubKeys = [...this.#publicKeys.keys()];
+        const privKeys = [...this.#privateKeys.keys()];
+        const groupKeys = [...this.#groupKeys.keys()];
+        const pubtx = this.#indexedDB.result.transaction(
+            'publicKeys',
+            'readwrite'
+        );
+        const privtx = this.#indexedDB.result.transaction(
+            'privateKeys',
+            'readwrite'
+        );
+        const grouptx = this.#indexedDB.result.transaction(
+            'groupKeys',
+            'readwrite'
+        );
+        const publicKeysStore = pubtx.objectStore('publicKeys');
+        const privateKeysStore = privtx.objectStore('privateKeys');
+        const groupKeysStore = grouptx.objectStore('groupKeys');
 
-        await new Promise((resolve) => {
-            deletion.onsuccess = function () {
-                console.log('Deleted database');
+        const pubKeyProms = pubKeys.map(function (key) {
+            return new Promise(function (resolve) {
+                publicKeysStore.delete(key);
                 return resolve();
-            };
-            deletion.onerror = function () {
-                console.log('Failed to delete database');
-                return resolve();
-            };
-            deletion.onblocked = function () {
-                console.log('Deletion was blocked');
-                return resolve();
-            };
+            });
         });
+        const privKeyProms = privKeys.map(function (key) {
+            return new Promise(function (resolve) {
+                privateKeysStore.delete(key);
+                return resolve();
+            });
+        });
+        const groupKeyProms = groupKeys.map(function (key) {
+            return new Promise(function (resolve) {
+                groupKeysStore.delete(key);
+                return resolve();
+            });
+        });
+
+        await Promise.all([...pubKeyProms, ...privKeyProms, ...groupKeyProms]);
 
         this.#publicKeys.clear();
         this.#privateKeys.clear();

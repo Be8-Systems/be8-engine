@@ -31,6 +31,8 @@ QUnit.test('Encrypt and Decrypt text one way', async function (assert) {
     const { cipherText, iv } = await be8Sender.encryptText(derivedKey, text);
     const decryptedText = await be8Receiver.decryptText(derivedKey, cipherText, iv);
 
+    await be8Sender.destroy();
+    await be8Receiver.destroy();
     return assert.equal(text, decryptedText, `"${text}"" is decrypted as "${decryptedText}"`);
 });
 
@@ -56,6 +58,8 @@ QUnit.test('Encrypt and Decrypt text duplex', async function (assert) {
     const decryptedTextForSender = await be8Receiver.decryptText(derivedKey, senderEncrypted.cipherText, senderEncrypted.iv);
     const decryptedTextForReceiver = await be8Sender.decryptText(derivedKey, receiverEncrypted.cipherText, receiverEncrypted.iv);
 
+    await be8Sender.destroy();
+    await be8Receiver.destroy();
     assert.equal(text, decryptedTextForReceiver, `"${text}"" is decrypted as "${decryptedTextForReceiver}"`);
     return assert.equal(text, decryptedTextForSender, `"${text}"" is decrypted as "${decryptedTextForSender}"`);
 });
@@ -80,6 +84,8 @@ QUnit.test('IV changes at same message', async function (assert) {
     const textFirstDecrypt = await be8Sender.encryptText(derivedKey, text);
     const textSecondDecrypt = await be8Sender.encryptText(derivedKey, text);
 
+    await be8Sender.destroy();
+    await be8Receiver.destroy();
     assert.notEqual(textFirstDecrypt.iv, textSecondDecrypt.iv, `Initialization vector is not equal after second time encrypting`);
     return assert.notEqual(textFirstDecrypt.cipherText, textSecondDecrypt.cipherText, `ciphertext is not equal after second time encrypting`);
 });
@@ -107,6 +113,9 @@ QUnit.test('Communication between two and a third one is trying to decrypt', asy
     const textFirstDecrypt = await be8Sender.encryptText(derivedKeySENDER, text);
     const prom = be8spy.decryptText(derivedKeySpy, textFirstDecrypt.cipherText, textFirstDecrypt.iv);
 
+    await be8Sender.destroy();
+    await be8Receiver.destroy();
+    await be8spy.destroy();
     return assert.rejects(prom, 'The third one is not able to decrypt');
 });
 
@@ -129,6 +138,7 @@ QUnit.test('Simplified encrypt and decrypt', async function (assert) {
     const { iv, cipherText } = await be8Sender.encryptTextSimple(senderID, receiverID, text);
     const decryptText = await be8Sender.decryptTextSimple(receiverID, senderID, cipherText, iv);
 
-    await be8Sender.destroy('be8');
+    await be8Sender.destroy();
+    await be8Receiver.destroy();
     return assert.equal(text, decryptText, `"${text}"" is decrypted as "${decryptText}"`);
 });
