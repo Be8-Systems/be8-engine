@@ -6,7 +6,7 @@ QUnit.module('Text', {
         return new Promise(function (resolve) {
             setTimeout(function () {
                 return resolve(true);
-            }, 300);
+            }, 100);
         });
     }
 });
