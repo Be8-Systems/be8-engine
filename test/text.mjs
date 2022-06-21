@@ -15,8 +15,8 @@ QUnit.test('Encrypt and Decrypt text one way', async function (assert) {
     const be8Sender = new Be8('4', database);
     const be8Receiver = new Be8('5', database);
 
-    await be8Receiver.setup();
     await be8Sender.setup();
+    await be8Receiver.setup();
 
     const senderPublicKeys = await be8Sender.getCachedKeys();
     const receiverPublicKeys = await be8Receiver.getCachedKeys();
@@ -38,8 +38,8 @@ QUnit.test('Encrypt and Decrypt text duplex', async function (assert) {
     const be8Sender = new Be8('6', database);
     const be8Receiver = new Be8('7', database);
 
-    await be8Receiver.setup();
     await be8Sender.setup();
+    await be8Receiver.setup();
 
     const senderPublicKeys = await be8Sender.getCachedKeys();
     const receiverPublicKeys = await be8Receiver.getCachedKeys();
@@ -111,21 +111,23 @@ QUnit.test('Communication between two and a third one is trying to decrypt', asy
 });
 
 QUnit.test('Simplified encrypt and decrypt', async function (assert) {
-    const be8Sender = new Be8('13', database);
-    const be8Receiver = new Be8('14', database);
+    const senderID = '13';
+    const receiverID = '14';
+    const be8Sender = new Be8(senderID, database);
+    const be8Receiver = new Be8(receiverID, database);
 
-    await be8Receiver.setup();
     await be8Sender.setup();
+    await be8Receiver.setup();
 
     const senderPublicKeys = await be8Sender.getCachedKeys();
     const receiverPublicKeys = await be8Receiver.getCachedKeys();
-    console.log(senderPublicKeys);
+
     await be8Sender.addPublicKeys(receiverPublicKeys);
     await be8Receiver.addPublicKeys(senderPublicKeys);
 
     const text = 'Hallo Welt';
-    const { iv, cipherText } = await be8Sender.encryptTextSimple('13', '14', text);
-    const decryptText = await be8Sender.decryptTextSimple('14', '13', cipherText, iv);
+    const { iv, cipherText } = await be8Sender.encryptTextSimple(senderID, receiverID, text);
+    const decryptText = await be8Sender.decryptTextSimple(receiverID, senderID, cipherText, iv);
 
     return assert.equal(text, decryptText, `"${text}"" is decrypted as "${decryptText}"`);
 });

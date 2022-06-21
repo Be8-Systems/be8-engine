@@ -167,7 +167,6 @@ class Be8 {
     }
 
     async getCachedKeys() {
-        console.log(this.#accID);
         const tx = this.#indexedDB.result.transaction(
             'publicKeys',
             'readwrite'
@@ -181,7 +180,6 @@ class Be8 {
                     accID: key.accID,
                     publicKey: key,
                 }));
-                console.log(keys);
                 return success(keys);
             };
         });
@@ -228,6 +226,10 @@ class Be8 {
 
         publicKeysStore.put({ accID: this.#accID, ...keys[0] });
         privateKeysStore.put({ accID: this.#accID, ...keys[1] });
+        this.#privateKeys.set(this.#accID, keys[1]);
+
+        await privateTx.complete;
+        await publicTX.complete;
 
         return keys;
     }
@@ -423,6 +425,8 @@ class Be8 {
 
         return await this.decryptImage(derivedKey, cipherImage, iv);
     }
+
+    async destroy() {}
 }
 
 export { Be8 as default };
