@@ -1,7 +1,15 @@
 import database from './database.mjs';
 import Be8 from './bundle.mjs';
 
-QUnit.module('Text');
+QUnit.module('Text', {
+    beforeEach: function () {
+        return new Promise(function (resolve) {
+            setTimeout(function () {
+                return resolve(true);
+            }, 300);
+        });
+    }
+});
 
 QUnit.test('Encrypt and Decrypt text one way', async function (assert) {
     const be8Sender = new Be8('4', database);

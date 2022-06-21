@@ -1,7 +1,13 @@
 import database from './database.mjs';
 import Be8 from './bundle.mjs';
 
-QUnit.module('Basics');
+QUnit.module('Basics', {
+    beforeEach: function (assert) {
+        setTimeout(function () {
+            return assert(true);
+        }, 1000);
+    }
+});
 
 QUnit.test('Check if keys are generated', async function (assert) {
     const be8 = new Be8('1', database);

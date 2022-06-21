@@ -1,7 +1,7 @@
 // we confige the db outside of the module
 // therefore we are not coupled to the module database requirements
 // maybe we want to store more which is not related to the engine itself
-const connection = indexedDB.open('be8', 2);
+const connection = indexedDB.open('be8', 1);
 
 connection.onupgradeneeded = function () {
     const db = connection.result;
@@ -21,6 +21,7 @@ connection.onupgradeneeded = function () {
         privateKeysStore.createIndex(...parameters);
     });
 };
+
 connection.onerror = function (event) {
     console.log(event);
 };
