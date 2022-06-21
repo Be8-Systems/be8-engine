@@ -1,13 +1,21 @@
 import database from './database.mjs';
 import Be8 from './bundle.mjs';
 
-const be8Sender = new Be8('1', database);
-const be8Receiver = new Be8('2', database);
-const be8spy = new Be8('3', database);
-
 QUnit.module('Text');
 
 QUnit.test('Encrypt and Decrypt text one way', async function (assert) {
+    const be8Sender = new Be8('4', database);
+    const be8Receiver = new Be8('5', database);
+
+    await be8Receiver.setup();
+    await be8Sender.setup();
+
+    const senderPublicKeys = await be8Sender.getCachedKeys();
+    const receiverPublicKeys = await be8Receiver.getCachedKeys();
+
+    await be8Sender.addPublicKeys(receiverPublicKeys);
+    await be8Receiver.addPublicKeys(senderPublicKeys);
+
     const text = 'Hallo Welt';
     const [, privateKeySENDER] = await be8Sender.generatePrivAndPubKey();
     const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
@@ -19,6 +27,18 @@ QUnit.test('Encrypt and Decrypt text one way', async function (assert) {
 });
 
 QUnit.test('Encrypt and Decrypt text duplex', async function (assert) {
+    const be8Sender = new Be8('6', database);
+    const be8Receiver = new Be8('7', database);
+
+    await be8Receiver.setup();
+    await be8Sender.setup();
+
+    const senderPublicKeys = await be8Sender.getCachedKeys();
+    const receiverPublicKeys = await be8Receiver.getCachedKeys();
+
+    await be8Sender.addPublicKeys(receiverPublicKeys);
+    await be8Receiver.addPublicKeys(senderPublicKeys);
+
     const text = 'Hallo Welt';
     const [, privateKeySENDER] = await be8Sender.generatePrivAndPubKey();
     const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
@@ -33,6 +53,18 @@ QUnit.test('Encrypt and Decrypt text duplex', async function (assert) {
 });
 
 QUnit.test('IV changes at same message', async function (assert) {
+    const be8Sender = new Be8('8', database);
+    const be8Receiver = new Be8('9', database);
+
+    await be8Receiver.setup();
+    await be8Sender.setup();
+
+    const senderPublicKeys = await be8Sender.getCachedKeys();
+    const receiverPublicKeys = await be8Receiver.getCachedKeys();
+
+    await be8Sender.addPublicKeys(receiverPublicKeys);
+    await be8Receiver.addPublicKeys(senderPublicKeys);
+
     const text = 'Hallo Welt';
     const [, privateKeySENDER] = await be8Sender.generatePrivAndPubKey();
     const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
@@ -45,6 +77,19 @@ QUnit.test('IV changes at same message', async function (assert) {
 });
 
 QUnit.test('Communication between two and a third one is trying to decrypt', async function (assert) {
+    const be8Sender = new Be8('10', database);
+    const be8Receiver = new Be8('11', database);
+    const be8spy = new Be8('12', database);
+
+    await be8Receiver.setup();
+    await be8Sender.setup();
+
+    const senderPublicKeys = await be8Sender.getCachedKeys();
+    const receiverPublicKeys = await be8Receiver.getCachedKeys();
+
+    await be8Sender.addPublicKeys(receiverPublicKeys);
+    await be8Receiver.addPublicKeys(senderPublicKeys);
+    
     const text = 'geheimer text';
     const [publicKeySENDER, privateKeySENDER] = await be8Sender.generatePrivAndPubKey();
     const [publicKeyRECEIVER, ] = await be8Receiver.generatePrivAndPubKey();
@@ -58,19 +103,21 @@ QUnit.test('Communication between two and a third one is trying to decrypt', asy
 });
 
 QUnit.test('Simplified encrypt and decrypt', async function (assert) {
+    const be8Sender = new Be8('13', database);
+    const be8Receiver = new Be8('14', database);
+
+    await be8Receiver.setup();
+    await be8Sender.setup();
+
+    const senderPublicKeys = await be8Sender.getCachedKeys();
+    const receiverPublicKeys = await be8Receiver.getCachedKeys();
+    console.log(senderPublicKeys);
+    await be8Sender.addPublicKeys(receiverPublicKeys);
+    await be8Receiver.addPublicKeys(senderPublicKeys);
+
     const text = 'Hallo Welt';
-    const [publicKeySENDER] = await be8Sender.generatePrivAndPubKey();
-    const [publicKeyRECEIVER] = await be8Receiver.generatePrivAndPubKey();
-
-    be8Sender.addPublicKeys([{
-        accID: '2', publicKey: publicKeyRECEIVER
-    }]);
-    be8Receiver.addPublicKeys([{
-        accID: '1', publicKey: publicKeySENDER
-    }]);
-
-    const { iv, cipherText } = await be8Sender.encryptTextSimple('1', '2', text);
-    const decryptText = await be8Sender.decryptTextSimple('2', '1', cipherText, iv);
+    const { iv, cipherText } = await be8Sender.encryptTextSimple('13', '14', text);
+    const decryptText = await be8Sender.decryptTextSimple('14', '13', cipherText, iv);
 
     return assert.equal(text, decryptText, `"${text}"" is decrypted as "${decryptText}"`);
 });

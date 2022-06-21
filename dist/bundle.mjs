@@ -167,6 +167,7 @@ class Be8 {
     }
 
     async getCachedKeys() {
+        console.log(this.#accID);
         const tx = this.#indexedDB.result.transaction(
             'publicKeys',
             'readwrite'
@@ -180,6 +181,7 @@ class Be8 {
                     accID: key.accID,
                     publicKey: key,
                 }));
+                console.log(keys);
                 return success(keys);
             };
         });

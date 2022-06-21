@@ -4,15 +4,15 @@ import Be8 from './bundle.mjs';
 QUnit.module('Basics');
 
 QUnit.test('Check if keys are generated', async function (assert) {
-    const be8 = new Be8('10', database);
+    const be8 = new Be8('1', database);
     
     await be8.setup();
     return assert.equal(be8.hasGeneratedKeys(), true, 'Be8 object returns keys.');
 });
 
 QUnit.test('Get cached keys from db', async function (assert) {
-    const be8Sender = new Be8('13', database);
-    const be8Receiver = new Be8('14', database);
+    const be8Sender = new Be8('2', database);
+    const be8Receiver = new Be8('3', database);
     await be8Receiver.setup();
     const publicKeys = await be8Sender.getCachedKeys();
     await be8Receiver.addPublicKeys(publicKeys);
