@@ -426,7 +426,29 @@ class Be8 {
         return await this.decryptImage(derivedKey, cipherImage, iv);
     }
 
-    async destroy() {}
+    async destroy(name) {
+        const deletion = indexedDB.deleteDatabase(name);
+
+        await new Promise((resolve) => {
+            deletion.onsuccess = function () {
+                console.log('Deleted database');
+                return resolve();
+            };
+            deletion.onerror = function () {
+                console.log('Failed to delete database');
+                return resolve();
+            };
+            deletion.onblocked = function () {
+                console.log('Deletion was blocked');
+                return resolve();
+            };
+        });
+
+        this.#publicKeys.clear();
+        this.#privateKeys.clear();
+        this.#groupKeys.clear();
+        this.#channelKeys.clear();
+    }
 }
 
 export { Be8 as default };

@@ -129,5 +129,6 @@ QUnit.test('Simplified encrypt and decrypt', async function (assert) {
     const { iv, cipherText } = await be8Sender.encryptTextSimple(senderID, receiverID, text);
     const decryptText = await be8Sender.decryptTextSimple(receiverID, senderID, cipherText, iv);
 
+    await be8Sender.destroy('be8');
     return assert.equal(text, decryptText, `"${text}"" is decrypted as "${decryptText}"`);
 });
