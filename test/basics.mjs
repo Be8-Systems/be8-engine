@@ -16,7 +16,7 @@ QUnit.test('Check if keys are generated', async function (assert) {
     
     await be8.setup();
     assert.equal(be8.hasGeneratedKeys(), true, 'Be8 object returns keys.');
-    await be8.destroy();
+    await be8.panic();
 });
 
 QUnit.test('Get cached keys from db', async function (assert) {
@@ -28,8 +28,8 @@ QUnit.test('Get cached keys from db', async function (assert) {
     const publicKeys = await be8Sender.getCachedKeys();
 
     await be8Receiver.addPublicKeys(publicKeys);
-    await be8Sender.destroy();
-    await be8Receiver.destroy();
+    await be8Sender.panic();
+    await be8Receiver.panic();
 
     publicKeys.forEach(function ({ publicKey: { accID, crv, x, y } }) {
         assert.equal(crv, 'P-384', 'Curve is P-384');
