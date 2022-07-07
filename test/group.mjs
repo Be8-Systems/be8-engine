@@ -24,9 +24,9 @@ QUnit.test('Generate Group Message, readable for everyone, 3 participants', asyn
     const secondText = await be8Second.decryptText(gOwnerDerivedKey, cipherText, iv); 
     const thirdText = await be8Third.decryptText(gOwnerDerivedKey, cipherText, iv);  
 
-    await be8groupOwner.destroy();
-    await be8Second.destroy();
-    await be8Third.destroy();
+    await be8groupOwner.panic();
+    await be8Second.panic();
+    await be8Third.panic();
     assert.equal(text, secondText, 'Second participant can read the message');
     return assert.equal(text, thirdText, 'Third participant can read the message');
 });
@@ -61,8 +61,8 @@ QUnit.test('Generate Group Message, 2 participants regenerate after a third one 
 
     const firstMessageDecryptByNewerKey = be8Third.decryptText(gOwnerDerivedKeyV2, cipherText, iv);
 
-    await be8groupOwner.destroy();
-    await be8Second.destroy();
-    await be8Third.destroy();
+    await be8groupOwner.panic();
+    await be8Second.panic();
+    await be8Third.panic();
     assert.rejects(firstMessageDecryptByNewerKey, 'Phase 3: prevent new member to read old message');
 });

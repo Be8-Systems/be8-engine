@@ -35,7 +35,7 @@ QUnit.test('Throw at encryptTextSimple due to no sender key', async function (as
 
     const prom = be8Receiver.encryptTextSimple('1', receiver, text);
     
-    await be8Receiver.destroy();
+    await be8Receiver.panic();
     return assert.rejects(prom, /Missing private key for 1 at encryptTextSimple/, 'Throw at encryptTextSimple due to no sender key');
 });
 
@@ -49,7 +49,7 @@ QUnit.test('Throw at encryptTextSimple due to no receiver key', async function (
 
     const prom = be8Sender.encryptTextSimple(sender, '2', text);
     
-    await be8Sender.destroy();
+    await be8Sender.panic();
     return assert.rejects(prom, /Missing public key for 2 at encryptTextSimple/, 'Throw at encryptTextSimple due to no sender key');
 });
 
@@ -66,7 +66,7 @@ QUnit.test('Throw at encryptImageSimple due to no sender key', async function (a
 
     const prom = be8Receiver.encryptImageSimple('1', receiver, text);
     
-    await be8Receiver.destroy();
+    await be8Receiver.panic();
     return assert.rejects(prom, /Missing private key for 27 at encryptImageSimple/, 'Throw at encryptImageSimple due to no sender key');
 });
 
@@ -83,7 +83,7 @@ QUnit.test('Throw at encryptImageSimple due to no receiver key', async function 
 
     const prom = be8Sender.encryptImageSimple(sender, '2', text);
     
-    await be8Sender.destroy();
+    await be8Sender.panic();
     return assert.rejects(prom, /Missing public key for 28 at encryptImageSimple/, 'Throw at encryptImageSimple due to no sender key');
 });
 
@@ -91,7 +91,7 @@ QUnit.test('Throw at getDerivedKey due to missing public key' , async function (
     const be8Sender = new Be8('29', database);
 
     assert.rejects(be8Sender.getDerivedKey(), /no public key passed to getDerivedKey/, 'Throw at getDerivedKey due to missing public key');
-    return await be8Sender.destroy();
+    return await be8Sender.panic();
 });
 
 QUnit.test('Throw at getDerivedKey due to missing private key' , async function (assert) {
@@ -99,21 +99,21 @@ QUnit.test('Throw at getDerivedKey due to missing private key' , async function 
     const [publicKey] = await be8Sender.generatePrivAndPubKey();
 
     assert.rejects(be8Sender.getDerivedKey(publicKey), /no private key passed to getDerivedKey/, 'Throw at getDerivedKey due to missing private key');
-    return await be8Sender.destroy();
+    return await be8Sender.panic();
 });
 
 QUnit.test('Throw at encryptText due to missing derivedKey' , async function (assert) {
     const be8Sender = new Be8('31', database);
 
     assert.rejects(be8Sender.encryptText(), /no derived key passed to encryptText/, 'Throw at encryptText due to missing derivedKey');
-    return await be8Sender.destroy();
+    return await be8Sender.panic();
 });
 
 QUnit.test('Throw at decryptText due to missing derivedKey' , async function (assert) {
     const be8Sender = new Be8('32', database);
 
     assert.rejects(be8Sender.decryptText(), /no derived key passed to decryptText/, 'Throw at decryptText due to missing derivedKey');
-    return await be8Sender.destroy();
+    return await be8Sender.panic();
 });
 
 QUnit.test('Throw at decryptText due to missing iv' , async function (assert) {
@@ -141,7 +141,7 @@ QUnit.test('Throw at decryptText due to missing iv' , async function (assert) {
     const { cipherText } = await be8Sender.encryptTextSimple(sender, receiver, text);
     const prom = be8Sender.decryptTextSimple(receiver, sender, cipherText);
 
-    await be8Sender.destroy();
-    await be8Receiver.destroy();
+    await be8Sender.panic();
+    await be8Receiver.panic();
     return assert.rejects(prom, /no iv \(Initialization vector\) passed to decryptText/, 'Throw at decryptText due to missing iv');
 });

@@ -36,8 +36,8 @@ QUnit.test('decryptImage check if base64 is altered', async function (assert) {
 
     const decryptedImage = await be8Sender.decryptImage(derivedKey, cipherImage, iv);
     
-    await be8Sender.destroy();
-    await be8Receiver.destroy();
+    await be8Sender.panic();
+    await be8Receiver.panic();
     assert.true(decryptedImage.length === base64Img.length, 'decryptedImage is as long as base64Img');
     return assert.equal(decryptedImage, base64Img, 'original base64 is returned');
 });
@@ -64,8 +64,8 @@ QUnit.test('decryptImageSimple check if base64 is altered', async function (asse
 
     const decryptedImage = await be8Receiver.decryptImageSimple(sender, receiver, cipherImage, iv);
     
-    await be8Sender.destroy();
-    await be8Receiver.destroy();
+    await be8Sender.panic();
+    await be8Receiver.panic();
     assert.true(decryptedImage.length === base64Img.length, 'decryptedImage is as long as base64Img');
     return assert.equal(decryptedImage, base64Img, 'original base64 is returned');
 });

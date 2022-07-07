@@ -427,7 +427,7 @@ class Be8 {
         return await this.decryptImage(derivedKey, cipherImage, iv);
     }
 
-    async destroy() {
+    async panic() {
         const pubKeys = [...this.#publicKeys.keys()];
         const privKeys = [...this.#privateKeys.keys()];
         const groupKeys = [...this.#groupKeys.keys()];
