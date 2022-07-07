@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "",
   "main": "dist/",
+  "type": "module",
   "scripts": {
     "test": "node test/server.mjs",
     "watch": "rollup -w -c build/rollup.config.js",
