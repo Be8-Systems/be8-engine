@@ -2,7 +2,7 @@
   "name": "be8-engine",
   "version": "0.0.2",
   "description": "",
-  "main": "dist/",
+  "main": "dist/bundle.mjs",
   "type": "module",
   "scripts": {
     "test": "node test/server.mjs",
