@@ -282,7 +282,7 @@ class Be8 {
     async encryptText(derivedKey, text = '') {
         const encodedText = new TextEncoder().encode(text);
         const iv = generateIV();
-        const stringifiedIV = Buffer.from(iv.buffer).toString();
+        const stringifiedIV = new TextDecoder().decode(iv);
         const algorithm = {
             name: 'AES-GCM',
             iv,
@@ -308,7 +308,7 @@ class Be8 {
         const uintArray = new Uint8Array(
             [...mstring].map((char) => char.charCodeAt(0))
         );
-        const parsedIV = new Uint8Array(Buffer.from(iv));
+        const parsedIV = new TextEncoder('utf-8').encode(iv);
         const algorithm = {
             name: 'AES-GCM',
             iv: parsedIV,
