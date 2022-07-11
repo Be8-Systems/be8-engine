@@ -7,7 +7,7 @@ connection.onupgradeneeded = function () {
     const db = connection.result;
     const publicKeysStore = db.createObjectStore('publicKeys', { keyPath: 'accID' });
     const privateKeysStore = db.createObjectStore('privateKeys', { keyPath: 'accID' });
-    const groupKeysStore = db.createObjectStore('groupKeys', { keyPath: 'accID' });
+    const groupKeysStore = db.createObjectStore('groupKeys', { keyPath: ['groupID', 'version'] });
     const indexs = [
         ['crv', 'crv', { unique: false }],
         ['x', 'x', { unique: false }],
