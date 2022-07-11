@@ -170,6 +170,7 @@ class Be8 {
                 this.#groupKeys.set(`${groupID}:${version}`, groupKey)
             );
             const proms = groupKeys.map(function ({ version, groupKey }) {
+                console.log(groupID, version, ...groupKey);
                 groupKeysStore.put({ groupID, version, ...groupKey });
                 groupKeysStore.onsuccess = () =>
                     console.log(`added group key for ${groupID}`);
