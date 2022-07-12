@@ -517,8 +517,10 @@ class Be8 {
             });
         });
         const groupKeyProms = groupKeys.map(function (key) {
+            const sanKey = key.split(':');
+
             return new Promise(function (resolve) {
-                groupKeysStore.delete(key);
+                groupKeysStore.delete(sanKey);
                 return resolve();
             });
         });
