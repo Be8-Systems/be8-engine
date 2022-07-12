@@ -202,6 +202,23 @@ class Be8 {
         });
     }
 
+    async getCachedGroupVersions(groupID) {
+        const tx = this.#indexedDB.result.transaction('groupKeys', 'readwrite');
+        const groupKeysStore = tx.objectStore('groupKeys');
+        const all = groupKeysStore.getAllKeys();
+
+        return await new Promise(function (success) {
+            all.onsuccess = function (event) {
+                const allVersions = event.target.result;
+                const groupVersions = allVersions
+                    .filter((v) => v[0] === groupID)
+                    .map((v) => v.pop());
+
+                return success(groupVersions);
+            };
+        });
+    }
+
     async generateGroupKeys(version, groupID) {
         const { privateKey, publicKey } =
             await window.crypto.subtle.generateKey(algorithm, true, keyUsages);
