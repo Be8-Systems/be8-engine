@@ -60,6 +60,7 @@ class Be8 {
 
     async setup() {
         const databaseKeys = await this.getCachedKeys();
+        const databaseGroupKeys = await this.getCachedGroupKeys();
         const privateTx = this.#indexedDB.result.transaction(
             'privateKeys',
             'readwrite'
@@ -85,6 +86,9 @@ class Be8 {
 
         databaseKeys.forEach(({ accID, publicKey }) =>
             this.#publicKeys.set(accID, publicKey)
+        );
+        databaseGroupKeys.forEach(({ groupID, version, groupKey }) =>
+            this.#groupKeys.set(`${groupID}:${version}`, groupKey)
         );
 
         return databaseKeys;
@@ -196,6 +200,23 @@ class Be8 {
                 const keys = event.target.result.map((key) => ({
                     accID: key.accID,
                     publicKey: key,
+                }));
+                return success(keys);
+            };
+        });
+    }
+
+    async getCachedGroupKeys() {
+        const tx = this.#indexedDB.result.transaction('groupKeys', 'readwrite');
+        const groupKeysStore = tx.objectStore('groupKeys');
+        const all = groupKeysStore.getAll();
+
+        return await new Promise(function (success) {
+            all.onsuccess = function (event) {
+                const keys = event.target.result.map((key) => ({
+                    groupID: key.groupID,
+                    version: key.version,
+                    groupKey: key,
                 }));
                 return success(keys);
             };
