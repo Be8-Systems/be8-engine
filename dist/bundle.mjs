@@ -335,11 +335,10 @@ class Be8 {
     async encryptText(derivedKey, text = '') {
         const encodedText = new TextEncoder().encode(text);
         const iv = generateIV();
-        const parsedIV = new TextEncoder('utf-8').encode(iv);
         const stringifiedIV = new TextDecoder().decode(iv);
         const algorithm = {
             name: 'AES-GCM',
-            iv: parsedIV,
+            iv,
         };
 
         if (!derivedKey) {
@@ -417,6 +416,7 @@ class Be8 {
     async encryptImage(derivedKey, base64Image) {
         const encodedText = new TextEncoder().encode(base64Image);
         const iv = generateIV();
+        const stringifiedIV = new TextDecoder().decode(iv);
 
         if (!derivedKey) {
             throw 'engine: no derived key passed to decryptText';
@@ -427,7 +427,7 @@ class Be8 {
             .then(function (encryptedData) {
                 return {
                     cipherImage: arrayBufferToBase64(encryptedData),
-                    iv,
+                    iv: stringifiedIV,
                 };
             });
     }
@@ -437,9 +437,10 @@ class Be8 {
         const uintArray = new Uint8Array(
             [...mstring].map((char) => char.charCodeAt(0))
         );
+        const parsedIV = new TextEncoder('utf-8').encode(iv);
         const algorithm = {
             name: 'AES-GCM',
-            iv,
+            iv: parsedIV,
         };
 
         if (!derivedKey) {
