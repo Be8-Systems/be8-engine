@@ -112,7 +112,7 @@ class Be8 {
         return publicKey && privatekey;
     }
 
-    #getKey(id) {
+    #getPublicKey(id) {
         const type = getTypeOfKey(id);
 
         if (type === 'group') {
@@ -123,6 +123,19 @@ class Be8 {
         }
 
         return this.#publicKeys.get(id);
+    }
+
+    #getPrivateKey(id) {
+        const type = getTypeOfKey(id);
+
+        if (type === 'group') {
+            return this.#groupKeys.get(id);
+        }
+        if (type === 'channel') {
+            return this.#channelKeys.get(id);
+        }
+
+        return this.#privateKeys.get(id);
     }
 
     async addPublicKeys(publicKeys = []) {
@@ -382,8 +395,8 @@ class Be8 {
     }
 
     async encryptTextSimple(accIDSender, accIDReceiver, text) {
-        const publicKey = this.#getKey(accIDReceiver);
-        const privateKey = this.#privateKeys.get(accIDSender);
+        const publicKey = this.#getPublicKey(accIDReceiver);
+        const privateKey = this.#getPrivateKey(accIDSender);
 
         if (!publicKey) {
             throw `engine: Missing public key for ${accIDReceiver} at encryptTextSimple`;
@@ -398,8 +411,8 @@ class Be8 {
     }
 
     async decryptTextSimple(accIDSender, accIDReceiver, cipherText, iv) {
-        const publicKey = this.#getKey(accIDSender);
-        const privateKey = this.#privateKeys.get(accIDReceiver);
+        const publicKey = this.#getPublicKey(accIDSender);
+        const privateKey = this.#getPrivateKey(accIDReceiver);
 
         if (!publicKey) {
             throw `engine: Missing public key for ${accIDSender} at decryptTextSimple`;
@@ -455,8 +468,8 @@ class Be8 {
     }
 
     async encryptImageSimple(accIDSender, accIDReceiver, base64Image) {
-        const publicKey = this.#getKey(accIDReceiver);
-        const privateKey = this.#privateKeys.get(accIDSender);
+        const publicKey = this.#getPublicKey(accIDReceiver);
+        const privateKey = this.#getPrivateKey(accIDSender);
 
         if (!publicKey) {
             throw `engine: Missing public key for ${accIDSender} at encryptImageSimple`;
@@ -471,8 +484,8 @@ class Be8 {
     }
 
     async decryptImageSimple(accIDSender, accIDReceiver, cipherImage, iv) {
-        const publicKey = this.#getKey(accIDSender);
-        const privateKey = this.#privateKeys.get(accIDReceiver);
+        const publicKey = this.#getPublicKey(accIDSender);
+        const privateKey = this.#getPrivateKey(accIDReceiver);
 
         if (!publicKey) {
             throw `engine: Missing public key for ${accIDSender} at decryptImageSimple`;
