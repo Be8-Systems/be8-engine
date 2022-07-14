@@ -112,6 +112,19 @@ class Be8 {
         return publicKey && privatekey;
     }
 
+    hasKeys(id) {
+        const type = getTypeOfKey(id);
+
+        if (type === 'group') {
+            return this.#groupKeys.has(id);
+        }
+        if (type === 'channel') {
+            return this.#channelKeys.has(id);
+        }
+
+        return this.#privateKeys.has(id);
+    }
+
     #getPublicKey(id) {
         const type = getTypeOfKey(id);
 
