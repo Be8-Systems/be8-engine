@@ -566,7 +566,7 @@ class Be8 {
             };
         });
 
-        await Promise.all([...pubKeyProms, ...privKeyProms, ...groupKeyProms]);
+        await Promise.all([pubKeyProms, privKeyProms, groupKeyProms]);
 
         this.#publicKeys.clear();
         this.#privateKeys.clear();
