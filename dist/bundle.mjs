@@ -528,9 +528,6 @@ class Be8 {
     }
 
     async panic() {
-        const pubKeys = [...this.#publicKeys.keys()];
-        const privKeys = [...this.#privateKeys.keys()];
-        const groupKeys = [...this.#groupKeys.keys()];
         const pubtx = this.#indexedDB.result.transaction(
             'publicKeys',
             'readwrite'
@@ -547,25 +544,26 @@ class Be8 {
         const privateKeysStore = privtx.objectStore('privateKeys');
         const groupKeysStore = grouptx.objectStore('groupKeys');
 
-        const pubKeyProms = pubKeys.map(function (key) {
-            return new Promise(function (resolve) {
-                publicKeysStore.delete(key);
-                return resolve();
-            });
-        });
-        const privKeyProms = privKeys.map(function (key) {
-            return new Promise(function (resolve) {
-                privateKeysStore.delete(key);
-                return resolve();
-            });
-        });
-        const groupKeyProms = groupKeys.map(function (key) {
-            const sanKey = key.split(':');
+        const pubKeyProms = new Promise(function (resolve) {
+            const event = publicKeysStore.clear();
 
-            return new Promise(function (resolve) {
-                groupKeysStore.delete(sanKey);
+            event.onsuccess = function () {
                 return resolve();
-            });
+            };
+        });
+        const privKeyProms = new Promise(function (resolve) {
+            const event = privateKeysStore.clear();
+
+            event.onsuccess = function () {
+                return resolve();
+            };
+        });
+        const groupKeyProms = new Promise(function (resolve) {
+            const event = groupKeysStore.clear();
+
+            event.onsuccess = function () {
+                return resolve();
+            };
         });
 
         await Promise.all([...pubKeyProms, ...privKeyProms, ...groupKeyProms]);
