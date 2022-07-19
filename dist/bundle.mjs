@@ -219,7 +219,7 @@ class Be8 {
             'readwrite'
         );
         const publicKeysStore = tx.objectStore('publicKeys');
-        const get = publicKeysStore.get(this.accID);
+        const get = publicKeysStore.get(this.#accID);
 
         return await new Promise(function (success) {
             get.onsuccess = function (event) {
