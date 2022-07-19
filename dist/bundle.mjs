@@ -77,10 +77,10 @@ class Be8 {
         });
 
         if (!privateKey) {
-            console.log('engine: brand new acc');
+            console.log(`engine: brand new acc, set id: #${this.#accID}`);
             await this.generatePrivAndPubKey();
         } else {
-            console.log('engine: old acc');
+            console.log(`engine: old acc, used id: #${this.#accID}`);
             this.#privateKeys.set(this.#accID, privateKey);
         }
 
