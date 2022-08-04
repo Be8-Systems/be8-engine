@@ -276,7 +276,10 @@ class Be8 {
                     .filter((key) => key.groupID === groupID)
                     .map((v) => v.version)
                     .sort(function (a, b) {
-                        if (a < b) {
+                        const aNum = parseInt(a);
+                        const bNum = parseInt(b);
+
+                        if (aNum < bNum) {
                             return 1;
                         }
 
