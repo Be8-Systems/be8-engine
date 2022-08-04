@@ -274,7 +274,14 @@ class Be8 {
                 const allKeys = event.target.result;
                 const groupVersions = allKeys
                     .filter((key) => key.groupID === groupID)
-                    .map((v) => v.version);
+                    .map((v) => v.version)
+                    .sort(function (a, b) {
+                        if (a < b) {
+                            return 1;
+                        }
+
+                        return -1;
+                    });
 
                 return success(groupVersions);
             };
